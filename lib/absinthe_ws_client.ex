@@ -4,8 +4,8 @@ defmodule AbsintheWsClient do
   """
   require Logger
   alias ArchEthic.Utils.WSClient
-  alias ArchEthic.Utils.WebSocket.PID_SubscriptionServer
-  alias ArchEthic.Utils.WebSocket.PID_WebSocketHandler
+  alias ArchEthic.Utils.WebSocket.SubscriptionProcess
+  alias ArchEthic.Utils.WebSocket.WSProcess
 
   def go() do
     ws_clients =
@@ -16,19 +16,6 @@ defmodule AbsintheWsClient do
       end)
 
     IO.inspect(ws_clients)
-    Process.sleep(10_000)
-
-    # task_res =
-    #   Enum.map(get_txn_addr(), fn x ->
-    #     Task.async(fn ->
-    #       {ss, ws} = Enum.random(ws_clients)
-    #       await_replication(x, ss)
-    #     end)
-    #   end)
-    #   |> Enum.map(fn data ->
-    #     IO.inspect(data)
-    #     Task.await(data, 1000)
-    #   end)
 
     task_res =
       Enum.map(get_txn_addr(), fn x ->
@@ -39,16 +26,15 @@ defmodule AbsintheWsClient do
         end)
       end)
       |> Enum.map(fn data ->
-        IO.inspect(data)
         Task.await(data, 15_000)
       end)
   end
 
   def get_client() do
-    ss_pid1 = PID_SubscriptionServer.start(ss_name: random_non_colliding_int()) |> elem(1)
+    ss_pid1 = SubscriptionProcess.start(ss_name: random_non_colliding_int()) |> elem(1)
 
     ws_pid1 =
-      PID_WebSocketHandler.start(
+      WSProcess.start(
         host: "localhost",
         port: 4000,
         ss_pid: ss_pid1,
@@ -56,7 +42,7 @@ defmodule AbsintheWsClient do
       )
       |> elem(1)
 
-    PID_SubscriptionServer.set_state(ss_pid1, ws_pid1)
+    SubscriptionProcess.set_state(ss_pid1, ws_pid1)
     Logger.debug("Binding #{inspect(binding())}")
     {ss_pid1, ws_pid1}
   end
@@ -176,12 +162,12 @@ defmodule AbsintheWsClient do
     Task.async(fn ->
       IO.inspect(ss_pid, label: "pid id")
 
-      PID_SubscriptionServer.subscribe(
+      SubscriptionProcess.subscribe(
         ss_pid,
-        prepare_query(txn_address),
-        _var = %{},
-        _pid = self(),
-        _sub_id = txn_address
+        _local_subscription_id = txn_address,
+         _callback_pid = self(),
+         prepare_query(txn_address),
+        _var = %{}
       )
       receive do
         message ->

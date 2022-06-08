@@ -1,16 +1,16 @@
-defmodule ArchEthic.Utils.WebSocket.PID_SubscriptionServer do
+defmodule ArchEthic.Utils.WebSocket.SubscriptionProcess do
   @moduledoc "
     Genserver that handles subscription logic.
   "
   use GenServer
   require Logger
-  alias ArchEthic.Utils.WebSocket.PID_WebSocketHandler
+  alias ArchEthic.Utils.WebSocket.WSProcess
 
   def start_link(opts) do
     name = Keyword.get(opts, :ss_name, __MODULE__)
 
     state = %{
-      socket: nil,
+      socket: WSProcess.start(opts),
       subscriptions: %{}
     }
 
@@ -21,7 +21,7 @@ defmodule ArchEthic.Utils.WebSocket.PID_SubscriptionServer do
     name = Keyword.get(opts, :ss_name, __MODULE__)
 
     state = %{
-      socket: nil,
+      socket: WSProcess.start_link(opts)|>elem(1),
       subscriptions: %{}
     }
 
@@ -55,7 +55,7 @@ defmodule ArchEthic.Utils.WebSocket.PID_SubscriptionServer do
         {:subscribe, local_subscription_id, callback_or_dest, query, variables},
         state = %{socket: socket_pid, subscriptions: subscriptions}
       ) do
-    PID_WebSocketHandler.subscribe(socket_pid, self(), local_subscription_id, query, variables)
+    WSProcess.subscribe(socket_pid, self(), local_subscription_id, query, variables)
 
     callbacks = Map.get(subscriptions, local_subscription_id, [])
     subscriptions = Map.put(subscriptions, local_subscription_id, [callback_or_dest | callbacks])
@@ -64,7 +64,7 @@ defmodule ArchEthic.Utils.WebSocket.PID_SubscriptionServer do
     {:noreply, state}
   end
 
-  # Incoming Notifications (from WSClient.PID_WebSocketHandler)
+  # Incoming Notifications (from WSClient.WSProcess)
   def handle_cast(
         {:subscription, local_subscription_id, response},
         state = %{subscriptions: subscriptions}

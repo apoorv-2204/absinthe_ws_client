@@ -1,10 +1,10 @@
-defmodule ArchEthic.Utils.WebSocket.PID_WebSocketHandler do
+defmodule ArchEthic.Utils.WebSocket.WSProcess do
   @moduledoc """
    Genserver with WebSockex to handle websocket (for absinthe subscription)
   """
   use WebSockex
   require Logger
-  alias ArchEthic.Utils.WebSocket.PID_SubscriptionServer
+  alias ArchEthic.Utils.WebSocket.SubscriptionProcess
 
   @heartbeat_sleep 15_000
   @disconnect_sleep 15_000
@@ -187,7 +187,7 @@ defmodule ArchEthic.Utils.WebSocket.PID_WebSocketHandler do
       "query" => query,
       "variables" => variables
     }
-    IO.inspect(binding())
+
     msg =
       %{
         topic: "__absinthe__:control",
