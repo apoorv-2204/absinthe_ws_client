@@ -1,18 +1,25 @@
-defmodule ArchEthic.Utils.WebSocket.SubscriptionProcess do
+defmodule AbsintheWebSocketClient.SubscriptionProcess do
   @moduledoc "
     Genserver that handles subscription logic.
   "
   use GenServer
+  alias __MODULE__.WebSocketSupervisor
+
   require Logger
-  alias ArchEthic.Utils.WebSocket.WSProcess
+  alias AbsintheWebSocketClient.WebSocketProcess
 
   def start_link(opts) do
     name = Keyword.get(opts, :ss_name, __MODULE__)
 
     state = %{
-      socket: WSProcess.start(opts),
+      socket: WebSocketProcess.start(opts),
       subscriptions: %{}
     }
+
+    DynamicSupervisor.start_child(WebSocketSupervisor, {
+      WebSocketProcess,
+      [opts]
+    })
 
     GenServer.start_link(__MODULE__, state, name: name)
   end
@@ -21,7 +28,7 @@ defmodule ArchEthic.Utils.WebSocket.SubscriptionProcess do
     name = Keyword.get(opts, :ss_name, __MODULE__)
 
     state = %{
-      socket: WSProcess.start_link(opts)|>elem(1),
+      socket: WebSocketProcess.start_link(opts) |> elem(1),
       subscriptions: %{}
     }
 
@@ -45,6 +52,7 @@ defmodule ArchEthic.Utils.WebSocket.SubscriptionProcess do
 
   def subscribe(pid, local_subscription_id, callback_or_dest, query, variables \\ []) do
     IO.inspect(pid, label: "ubscribe(pid")
+
     GenServer.cast(
       pid,
       {:subscribe, local_subscription_id, callback_or_dest, query, variables}
@@ -55,7 +63,7 @@ defmodule ArchEthic.Utils.WebSocket.SubscriptionProcess do
         {:subscribe, local_subscription_id, callback_or_dest, query, variables},
         state = %{socket: socket_pid, subscriptions: subscriptions}
       ) do
-    WSProcess.subscribe(socket_pid, self(), local_subscription_id, query, variables)
+    WebSocketProcess.subscribe(socket_pid, self(), local_subscription_id, query, variables)
 
     callbacks = Map.get(subscriptions, local_subscription_id, [])
     subscriptions = Map.put(subscriptions, local_subscription_id, [callback_or_dest | callbacks])
@@ -64,7 +72,7 @@ defmodule ArchEthic.Utils.WebSocket.SubscriptionProcess do
     {:noreply, state}
   end
 
-  # Incoming Notifications (from WSClient.WSProcess)
+  # Incoming Notifications (from WSClient.WebSocketProcess)
   def handle_cast(
         {:subscription, local_subscription_id, response},
         state = %{subscriptions: subscriptions}

@@ -1,4 +1,4 @@
-defmodule ArchEthic.Utils.WebSocket.WSProcess do
+defmodule AbsintheWebSocketClient.WebSocketProcess do
   @moduledoc """
    Genserver with WebSockex to handle websocket (for absinthe subscription)
   """
@@ -36,7 +36,6 @@ defmodule ArchEthic.Utils.WebSocket.WSProcess do
       name: name
     )
   end
-
 
   def start(opts) do
     name = Keyword.get(opts, :ws_name, __MODULE__)
