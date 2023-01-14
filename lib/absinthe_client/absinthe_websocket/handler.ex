@@ -8,7 +8,7 @@ defmodule AbsintheWebSocket.Handler do
   @heartbeat_sleep 15_000
   @disconnect_sleep 15_000
 
-  # @soec start_link(list.t()) :: GenServer.start()
+  @spec start_link(list.t()) :: GenServer.start()
   def start_link(opts \\ []) do
     host = Keyword.fetch!(opts, :host)
     port = Keyword.get!(opts, :port)
@@ -32,11 +32,6 @@ defmodule AbsintheWebSocket.Handler do
       async: true
     )
   end
-
-  # use of macro websockex
-  # def init(args) do
-  #   {:ok, args}
-  # end
 
   # webosockex impl
   def handle_connect(_conn, state) do
@@ -87,7 +82,12 @@ defmodule AbsintheWebSocket.Handler do
     {:reconnect, %{state | ready: false}}
   end
 
-  @impl WebSockex
+  # server  coinmarketcap ( graphql server)
+
+  # client  crypto market => values changes every seconds
+  # grapql query => single request to me made to server coinmarketcap one time req and sever give you the value
+  # subscription: (ws) websocket with the coinmarket cap server, abssinthe as a process, under the hood we have live view process
+
   def handle_info(:heartbeat, state) do
     WebSockex.cast(self(), :heartbeat)
 

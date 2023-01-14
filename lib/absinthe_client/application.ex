@@ -5,11 +5,9 @@ defmodule AbsintheClient.Application do
   require Logger
 
   def start(_type, _args) do
-    children = [
-      {Registry, keys: :duplicate, name: AbsintheClient.PubSubRegistry}
-    ]
+    # children = []
 
-    opts = [strategy: :rest_for_one, name: AbsintheClient.Supervisor]
-    Supervisor.start_link(Utils.configurable_children(children), opts)
+    # opts = [strategy: :rest_for_one, name: AbsintheClient.Supervisor]
+    # Supervisor.start_link(Utils.configurable_children(children), opts)
   end
 end

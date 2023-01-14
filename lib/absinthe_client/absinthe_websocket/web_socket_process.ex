@@ -9,11 +9,6 @@ defmodule AbsintheWebSocketClient.WebSocketProcess do
   @heartbeat_sleep 15_000
   @disconnect_sleep 15_000
 
-  # ref:
-  # Heartbeat: http://graemehill.ca/websocket-clients-and-phoenix-channels/
-  # https://stackoverflow.com/questions/34948331/how-to-implement-a-resetable-countdown-timer-with-a-genserver-in-elixir-or-erlan
-  # https://github.com/annkissam/absinthe_websocket/blob/master/lib/absinthe_websocket/websocket.ex
-
   def start_link(opts) do
     name = Keyword.get(opts, :ws_name, __MODULE__)
     host = Keyword.get(opts, :host, "localhost")
