@@ -8,7 +8,7 @@ defmodule AbsintheWebSocket.Handler do
   @heartbeat_sleep 15_000
   @disconnect_sleep 15_000
 
-  @soec start_link(list.t()) :: GenServer.start()
+  # @soec start_link(list.t()) :: GenServer.start()
   def start_link(opts \\ []) do
     host = Keyword.fetch!(opts, :host)
     port = Keyword.get!(opts, :port)

@@ -1,10 +1,10 @@
-defmodule AbsintheWebSocketClient.WebSocketProcess do
+defmodule AbsintheClient.Utils.WebSocket.WebSocketHandler do
   @moduledoc """
    Genserver with WebSockex to handle websocket (for absinthe subscription)
   """
   use WebSockex
   require Logger
-  alias ArchEthic.Utils.WebSocket.SubscriptionProcess
+  alias AbsintheClient.Utils.WebSocket.SubscriptionServer
 
   @heartbeat_sleep 15_000
   @disconnect_sleep 15_000
@@ -18,7 +18,7 @@ defmodule AbsintheWebSocketClient.WebSocketProcess do
     name = Keyword.get(opts, :ws_name, __MODULE__)
     host = Keyword.get(opts, :host, "localhost")
     port = Keyword.get(opts, :port, "4000")
-    ss_pid = Keyword.get(opts, :ss_pid)
+
     ws_url = "ws://#{host}:#{port}/socket/websocket"
 
     state = %{
@@ -27,30 +27,7 @@ defmodule AbsintheWebSocketClient.WebSocketProcess do
       msg_ref: 0,
       heartbeat_timer: nil,
       socket: name,
-      subscription_server: ss_pid
-    }
-
-    WebSockex.start_link(ws_url, __MODULE__, state,
-      handle_initial_conn_failure: true,
-      async: true,
-      name: name
-    )
-  end
-
-  def start(opts) do
-    name = Keyword.get(opts, :ws_name, __MODULE__)
-    host = Keyword.get(opts, :host, "localhost")
-    port = Keyword.get(opts, :port, "4000")
-    ss_pid = Keyword.get(opts, :ss_pid)
-    ws_url = "ws://#{host}:#{port}/socket/websocket"
-
-    state = %{
-      subscriptions: %{},
-      queries: %{},
-      msg_ref: 0,
-      heartbeat_timer: nil,
-      socket: name,
-      subscription_server: ss_pid
+      subscription_server: SubscriptionServer
     }
 
     WebSockex.start_link(ws_url, __MODULE__, state,
@@ -105,7 +82,7 @@ defmodule AbsintheWebSocketClient.WebSocketProcess do
   end
 
   def handle_info(msg, state) do
-    # Logger.info("#{__MODULE__} Info - Message: #{inspect(msg)}")
+    Logger.info("#{__MODULE__} Info - Message: #{inspect(msg)}")
 
     {:ok, state}
   end
@@ -207,7 +184,7 @@ defmodule AbsintheWebSocketClient.WebSocketProcess do
   end
 
   def handle_cast(message, state) do
-    # Logger.info("#{__MODULE__} - Cast: #{inspect(message)}")
+    Logger.info("#{__MODULE__} - Cast: #{inspect(message)}")
 
     super(message, state)
   end

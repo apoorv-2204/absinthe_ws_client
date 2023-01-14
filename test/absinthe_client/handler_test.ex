@@ -3,6 +3,5 @@ defmodule AbsintheWebSocket.HandlerTest do
   alias AbsintheWebSocket.Handler
 
   describe "AbsintheWebSocket Handler Otp test" do
-    
   end
 end

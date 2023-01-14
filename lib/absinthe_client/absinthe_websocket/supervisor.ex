@@ -9,7 +9,7 @@ defmodule AbsintheWebSocketClient.Supervisor do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def init(_args) do
+  def init(args) do
     children = [
       {SubscriptionProcess, args},
       {DynamicSupervisor,

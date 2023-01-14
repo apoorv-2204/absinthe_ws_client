@@ -1,4 +1,4 @@
-defmodule Archethic.Utils.WebSocket.SocketHandler do
+defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
   @moduledoc """
    Genserver with WebSockex to handle websocket (for absinthe subscription)
   """

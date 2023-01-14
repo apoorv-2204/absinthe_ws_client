@@ -1,11 +1,11 @@
-# defmodule AbsintheWsClient do
+# defmodule AbsintheClient do
 #   @moduledoc """
 #   Documentation for `AbsintheWsClient`.
 #   """
 #   require Logger
-#   alias ArchEthic.Utils.WSClient
-#   alias ArchEthic.Utils.WebSocket.SubscriptionProcess
-#   alias ArchEthic.Utils.WebSocket.WSProcess
+#   alias AbsintheClient.Utils.WSClient
+#   alias AbsintheClient.Utils.WebSocket.SubscriptionProcess
+#   alias AbsintheClient.Utils.WebSocket.WSProcess
 
 #   def go() do
 #     ws_clients =
@@ -54,7 +54,7 @@
 #       |> String.to_atom()
 
 #   def main() do
-#     # ArchEthic.Utils.WSClient.start_ws_client(host: "localhost", port: 4000)
+#     # AbsintheClient.Utils.WSClient.start_ws_client(host: "localhost", port: 4000)
 #     # await_replication("0000B61478BBFA17EDD202B16F33B3761BDE850D5D75751C6112F04C8E16AFC53063")
 #     # txn_addr_list =  Enum.shuffle(get_txn_addr)
 #     #   Task.async_stream(txn_addr_list, fn x ->

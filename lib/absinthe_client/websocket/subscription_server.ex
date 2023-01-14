@@ -1,10 +1,10 @@
-defmodule ArchEthic.Utils.WebSocket.SubscriptionServer do
+defmodule AbsintheClient.Utils.WebSocket.SubscriptionServer do
   @moduledoc "
     Genserver that handles subscription logic.
   "
   use GenServer
   require Logger
-  alias ArchEthic.Utils.WebSocket.WebSocketHandler
+  alias AbsintheClient.Utils.WebSocket.WebSocketHandler
 
   def start_link(opts) do
     name = Keyword.get(opts, :ss_name, __MODULE__)

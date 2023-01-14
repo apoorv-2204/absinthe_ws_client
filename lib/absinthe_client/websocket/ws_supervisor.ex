@@ -1,9 +1,10 @@
-defmodule Archethic.Utils.WebSocket.Supervisor do
+defmodule AbsintheClient.Utils.WebSocket.WSSupervisor do
   @moduledoc """
     Supervisor for WS SubscriptionServer and WebSocket
   """
   use Supervisor
-  alias Archethic.Utils.WebSocket.SocketHandler
+  alias AbsintheClient.Utils.WebSocket.SubscriptionServer
+  alias AbsintheClient.Utils.WebSocket.WebSocketHandler
 
   def start_link(args \\ %{}) do
     Supervisor.start_link(__MODULE__, args, name: :GQL_Client)
@@ -11,7 +12,8 @@ defmodule Archethic.Utils.WebSocket.Supervisor do
 
   def init(args) do
     children = [
-      {SocketHandler, args}
+      {SubscriptionServer, args},
+      {WebSocketHandler, args}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
