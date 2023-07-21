@@ -1,4 +1,4 @@
-defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
+defmodule AbsintheClient.SocketHandler do
   @moduledoc """
    Genserver with WebSockex to handle websocket (for absinthe subscription)
   """
@@ -13,25 +13,25 @@ defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
   # https://stackoverflow.com/questions/34948331/how-to-implement-a-resetable-countdown-timer-with-a-genserver-in-elixir-or-erlan
   # https://github.com/annkissam/absinthe_websocket/blob/master/lib/absinthe_websocket/websocket.ex
 
+  @spec start_link(keyword) :: GenServer.on_start()
   def start_link(opts) do
-    name = Keyword.get(opts, :ws_name, __MODULE__)
+    ws_name = Keyword.get(opts, :ws_name, __MODULE__)
     host = Keyword.get(opts, :host, "localhost")
     port = Keyword.get(opts, :port, "4000")
-
-    ws_url = "ws://#{host}:#{port}/socket/websocket"
+    ws_url = Keyword.get(opts, :ws_url, "ws://#{host}:#{port}/socket/websocket")
 
     state = %{
       subscriptions: %{},
       queries: %{},
       msg_ref: 0,
       heartbeat_timer: nil,
-      socket: name
+      socket: ws_name
     }
 
     WebSockex.start_link(ws_url, __MODULE__, state,
       handle_initial_conn_failure: true,
       async: true,
-      name: name
+      name: ws_name
     )
   end
 
@@ -39,7 +39,7 @@ defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
     WebSockex.cast(socket, {:query, {client_pid, ref, query, variables}})
   end
 
-  def subscribe(socket, client_pid, local_subscription_id, query, variables \\ []) do
+  def subscribe(socket, client_pid, local_subscription_id, query, variables \\ %{}) do
     WebSockex.cast(socket, {:subscribe, {client_pid, local_subscription_id, query, variables}})
   end
 
@@ -81,7 +81,7 @@ defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
   end
 
   def handle_info(msg, state) do
-    Logger.info("#{__MODULE__} Info - Message: #{inspect(msg)}")
+    Logger.info("[#{__MODULE__}] [Info] - [Message]: #{inspect(msg)}")
 
     {:ok, state}
   end
@@ -117,7 +117,7 @@ defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
 
     new_state =
       state
-      |> Map.update!(:queries, &Map.put(&1, msg_ref, :hearbeat))
+      |> Map.update!(:queries, &Map.put(&1, msg_ref, :heartbeat))
       |> Map.update!(:msg_ref, &(&1 + 1))
 
     {:reply, {:text, msg}, new_state}
@@ -259,18 +259,23 @@ defmodule AbsintheClient.Utils.WebSocket.SocketHandler do
   end
 
   defp phx_event({:subscribe, _client_pid, _local_subscription_id}, :error, payload, _state) do
-    raise "Subscription Error - #{inspect(payload)}"
+    Logger.error("[Subscription Error] - [#{inspect(payload)}]")
   end
 
   defp phx_event(:join, :ok, _payload, state), do: state
 
   defp phx_event(:join, :error, payload, _state) do
-    raise "Join Error - #{inspect(payload)}"
+    Logger.error("[Join Error] - [#{inspect(payload)}]")
   end
 
   defp phx_event(:heartbeat, :ok, _payload, state), do: state
 
+  defp phx_event(:heartbeat, a, b, state) do
+    Logger.error("[Heartbeat Error] - [#{inspect({a, b})}]")
+    state
+  end
+
   defp phx_event(:heartbeat, :error, payload, _state) do
-    raise "Heartbeat Error - #{inspect(payload)}"
+    Logger.error("[Heartbeat Error] - [#{inspect(payload)}]")
   end
 end

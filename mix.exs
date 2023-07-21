@@ -31,11 +31,10 @@ defmodule AbsintheWebSocketClient.MixProject do
 
   defp deps do
     [
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.4.1"},
       {:websockex, "~> 0.4.3"},
-      {:sobelow, "~> 0.11", only: [:test, :dev], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:sobelow, "~> 0.12.2", only: [:test, :dev], runtime: false},
+      {:dialyxir, "~> 1.3.0", only: [:dev], runtime: false}
     ]
   end
 
@@ -51,6 +50,14 @@ defmodule AbsintheWebSocketClient.MixProject do
         "sobelow",
         "cmd mix test --trace",
         "dialyzer"
+      ],
+      "dev.update_deps": [
+        "hex.outdated --within-requirements",
+        "deps.update --all --only",
+        "deps.clean --all --only",
+        "deps.get",
+        "deps.compile",
+        "hex.outdated --within-requirements"
       ]
     ]
   end
