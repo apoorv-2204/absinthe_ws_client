@@ -270,10 +270,10 @@ defmodule AbsintheClient.SocketHandler do
 
   defp phx_event(:heartbeat, :ok, _payload, state), do: state
 
-  defp phx_event(:heartbeat, a, b, state) do
-    Logger.error("[Heartbeat Error] - [#{inspect({a, b})}]")
-    state
-  end
+  # defp phx_event(:heartbeat, a, b, state) do
+  #   Logger.error("[Heartbeat Error] - [#{inspect({a, b})}]")
+  #   state
+  # end
 
   defp phx_event(:heartbeat, :error, payload, _state) do
     Logger.error("[Heartbeat Error] - [#{inspect(payload)}]")
